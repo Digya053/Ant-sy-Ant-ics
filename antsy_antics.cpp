@@ -23,16 +23,57 @@ void display_func(void) {
 	glPushMatrix();
 	glTranslatef(150, 0, -200);
 	glutWireSphere(25, 25, 25);
+
+	// Draw legs
+	glBegin(GL_LINES);
+	glVertex3f(0, 0, -200);
+	glVertex3f(-15, 55, -200);
+	glEnd();
+
+	glBegin(GL_LINES);
+	glVertex3f(0, 0, -200);
+	glVertex3f(-15, -55, -200);
+	glEnd();
+
+	// Draw connection line
+	glBegin(GL_LINES);
+	glVertex3f(0, 0, -200);
+	glVertex3f(35, 0, -200);
+	glEnd();
 	glPopMatrix();
 
 	glPushMatrix();
 	glTranslatef(210, 0, -200);
 	glutWireSphere(25, 25, 25);
+	glBegin(GL_LINES);
+	glVertex3f(0, 0, -200);
+	glVertex3f(0, 55, -200);
+	glEnd();
+
+	glBegin(GL_LINES);
+	glVertex3f(0, 0, -200);
+	glVertex3f(0, -55, -200);
+	glEnd();
+
+	// Draw connection line
+	glBegin(GL_LINES);
+	glVertex3f(0, 0, -200);
+	glVertex3f(35, 0, -200);
+	glEnd();
 	glPopMatrix();
 
 	glPushMatrix();
 	glTranslatef(270, 0, -200);
 	glutWireSphere(25, 25, 25);
+	glBegin(GL_LINES);
+	glVertex3f(0, 0, -200);
+	glVertex3f(15, 55, -200);
+	glEnd();
+
+	glBegin(GL_LINES);
+	glVertex3f(0, 0, -200);
+	glVertex3f(15, -55, -200);
+	glEnd();
 	glPopMatrix();	
 
 	glFlush();
