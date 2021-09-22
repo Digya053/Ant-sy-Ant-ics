@@ -29,7 +29,6 @@ that sets viewing parameters for orthographic 3D display.
  /* reshape callback handler - defines viewing parameters */
 
 
-
 void my_3d_projection(int width, int height)
 
 {
@@ -40,16 +39,16 @@ void my_3d_projection(int width, int height)
 
 	glViewport(0, 0, width, height);
 
-	glMatrixMode(GL_PROJECTION);
+	//glMatrixMode(GL_PROJECTION);
 
-	glLoadIdentity();
-
+	//glLoadIdentity();
 	//glOrtho(-320.0, 320.0, -320.0, 320.0, 0, 640.0);
-	gluPerspective(116.0, 1.0, 1.0, 640.0);
+	//gluPerspective(116.0, 1.0, 1.0, 640.0);
 
-	glMatrixMode(GL_MODELVIEW);
+	//glMatrixMode(GL_MODELVIEW);
 
 }
+
 
 
 
@@ -90,7 +89,6 @@ void my_setup(int width, int height, char *window_name_str)
 	glewExperimental = GL_TRUE;
 
 	glewInit();
-
 
 
 	glutReshapeFunc(my_3d_projection);

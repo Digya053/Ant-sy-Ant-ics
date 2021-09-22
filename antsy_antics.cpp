@@ -9,13 +9,8 @@
 #define PI 3.14159265358979324
 
 // Globals.
-
-/*static float R = 40.0; // Radius of circle.
-static float X = 50.0; // X-coordinate of center of circle.
-static float Y = 50.0; // Y-coordinate of center of circle.
-static int numVertices = 360; // Number of vertices on circle
-*/
 static float _angle = 0;
+static int view_state = 1; //Ortho view = 1, Perspective = 0
 
 void draw_connection_joints(int x) 
 {
@@ -114,22 +109,56 @@ void update(int value)
 void display_func(void) {
 	glClearColor(0.7, 1.0, 0.9, 1.0);
 	glClear(GL_COLOR_BUFFER_BIT);
+	if (view_state == 0)
+	{
+		glMatrixMode(GL_PROJECTION);
+		glLoadIdentity();
+
+		gluPerspective(116.0, 1.0, 1.0, 640.0);
+		glMatrixMode(GL_MODELVIEW);
+		//glLoadIdentity();
+		//gluLookAt(0, 0, -5.0, 0, 0, -200, 0, 1, 1);
+	}
+	else {
+		glMatrixMode(GL_PROJECTION);
+
+		glLoadIdentity();
+		glOrtho(-320.0, 320.0, -320.0, 320.0, 0, 640.0);
+
+		glMatrixMode(GL_MODELVIEW);
+		//glLoadIdentity();
+	}
+
 	glColor3f(0.0, 0.0, 0.0);
 	draw_food(-210, 0, -200, 40);
 	display_character(-210, 0, -200, 0.05);
 	draw_ant();
 
 	glLoadIdentity();
-	glTranslatef(200, 220, -200);
+	glTranslatef(190, 220, -200);
 	draw_circle(40.0, 50.0, 50.0, 360);
 
 	glLoadIdentity();
 	glBegin(GL_LINES);
-	glVertex3f(250, 300, -200);
-	glVertex3f(250, 270, -200);
+	glVertex3f(240, 300, -200);
+	glVertex3f(240, 270, -200);
 	glEnd();
-
 	glFlush();
+
+	
+}
+
+void keyboard_handler(unsigned char key, int x, int y)
+{
+	switch (key)
+	{
+	case 112:
+		//exit(0);
+		view_state = abs(view_state - 1);
+		glutPostRedisplay();
+	default:
+		break;
+	}
 }
 
 
@@ -145,6 +174,7 @@ int main(int argc, char ** argv) {
 	my_setup(canvas_Width, canvas_Height, canvas_Name);
 
 	glutDisplayFunc(display_func);
+	glutKeyboardFunc(keyboard_handler);
 	//glutTimerFunc(250, update, 0);
 	glutMainLoop();
 	return 0;
