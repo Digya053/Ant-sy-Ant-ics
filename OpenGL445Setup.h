@@ -44,8 +44,8 @@ void my_3d_projection(int width, int height)
 
 	glLoadIdentity();
 
-	glOrtho(-320.0, 320.0, -320.0, 320.0, 0, 640.0);
-	//gluPerspective(116.0, 1.0, 1.0, 640.0);
+	//glOrtho(-320.0, 320.0, -320.0, 320.0, 0, 640.0);
+	gluPerspective(116.0, 1.0, 1.0, 640.0);
 
 	glMatrixMode(GL_MODELVIEW);
 
