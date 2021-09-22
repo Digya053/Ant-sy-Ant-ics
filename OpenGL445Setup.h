@@ -45,6 +45,7 @@ void my_3d_projection(int width, int height)
 	glLoadIdentity();
 
 	glOrtho(-320.0, 320.0, -320.0, 320.0, 0, 640.0);
+	//gluPerspective(116.0, 1.0, 1.0, 640.0);
 
 	glMatrixMode(GL_MODELVIEW);
 
@@ -70,7 +71,7 @@ void my_setup(int width, int height, char *window_name_str)
 
 	// To get double buffering, uncomment the following line
 
-	// glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB); 
+	 //glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB); 
 
 	// below code line does single buffering - if above line is uncommented,
 
