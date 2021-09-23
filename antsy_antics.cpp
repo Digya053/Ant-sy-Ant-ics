@@ -10,37 +10,37 @@
 #define PI 3.14159265358979324
 
 // Globals.
-static float _angle = 0;
-static int view_state = 1; //Ortho view = 1, Perspective = 0
+static float _angle;
+static int view_state; //Ortho view = 1, Perspective = 0
 
-static int horizontal_move = 0;
-static int vertical_move = 0;
+static int horizontal_move;
+static int vertical_move;
 
-static int left = 0;
-static int right = 0;
-static int up = 0;
-static int down = 0;
+static int left;
+static int right;
+static int up;
+static int down;
 
-static float ant_color_r = 0.0;
-static float ant_color_g = 0.0;
-static float ant_color_b = 0.0;
+static float ant_color_r;
+static float ant_color_g;
+static float ant_color_b;
 
-static float eyeY = 0.0;
+static float eyeY;
 
 static int isAnimate = 0;
 static int animationPeriod = 60;
-static int key = 1;
+static int key;
 
 // initialize gateOpenDelay and flag  to zero(0)
 
-int gateOpenDelay = 0;
-int flag = 0;
-static int running = 0;
-static int secondHand = 0;
+int gateOpenDelay;
+int flag;
+static int running;
+static int secondHand;
 
 // initialize the gateOpenDelayTime to 5 secs, and startTime to zero(0)
-long gateOpenDelayTime = 5000;
-long startTime = 0;
+long gateOpenDelayTime;
+long startTime;
 
 char food[] = "YUM";
 char finish[] = "YOU WIN!";
@@ -49,6 +49,43 @@ char canvas_Name[] = "Ant-sy Ant-ics";
 // Sets width and height of canvas to 480 by 480.
 #define canvas_Width 640
 #define canvas_Height 640
+
+void init() {
+	glClearColor(0.5, 1.0, 0.5, 1.0);
+
+	_angle = 0;
+	view_state = 1; //Ortho view = 1, Perspective = 0
+	
+	horizontal_move = 0;
+	vertical_move = 0;
+
+	left = 0;
+	right = 0;
+	up = 0;
+	down = 0;
+
+	ant_color_r = 0.0;
+	ant_color_g = 0.0;
+	ant_color_b = 0.0;
+
+	eyeY = 0.0;
+
+	//isAnimate = 0;
+	//animationPeriod = 60;
+	key = 1;
+
+	// initialize gateOpenDelay and flag  to zero(0)
+
+	gateOpenDelay = 0;
+	flag = 0;
+	running = 1;
+	secondHand = 0;
+
+	// initialize the gateOpenDelayTime to 5 secs, and startTime to zero(0)
+	gateOpenDelayTime = 0.06;
+	startTime = 0;
+
+}
 
 void draw_connection_joints(int x)
 {
@@ -78,31 +115,46 @@ void draw_ant_legs(int x, int y)
 
 }
 
+void draw_sphere(int translate_x, int ant_x, int ant_y, int connect_x) {
+	glLoadIdentity();
+	glTranslatef(translate_x, vertical_move, -200);
+	glutWireSphere(25, 16, 16);
+	draw_ant_legs(ant_x, ant_y);
+	draw_connection_joints(connect_x);
+}
 void draw_ant()
 {
 	//first sphere
-	glLoadIdentity();
+	//glPushMatrix();
+	/*glLoadIdentity();
 	glTranslatef(150 + horizontal_move, vertical_move, -200);
-	glutWireSphere(25, 25, 25);
+	glutWireSphere(25, 16, 16);
 	draw_ant_legs(15, 55);
 	draw_connection_joints(35);
 	//glPopMatrix();
 
 	//second sphere
+	//glPushMatrix();
 	glLoadIdentity();
 	glTranslatef(210 + horizontal_move, vertical_move, -200);
-	glutWireSphere(25, 25, 25);
+	glutWireSphere(25, 16, 16);
 	draw_ant_legs(0, 55);
 	draw_connection_joints(35);
+	//glPopMatrix();
 
 	//third sphere
+	//glPushMatrix();
 	glLoadIdentity();
 	glTranslatef(270 + horizontal_move, vertical_move, -200);
-	glutWireSphere(25, 25, 25);
+	glutWireSphere(25, 16, 16);
 	draw_ant_legs(15, 55);
+	//glPopMatrix();*/
+	draw_sphere(150 + horizontal_move, 15, 55, 35);
+	draw_sphere(210 + horizontal_move, 0, 55, 35);
+	draw_sphere(270 + horizontal_move, 15, 55, 0);
 
 
-	//glFlush();
+	glFlush();
 	//glPopMatrix();
 }
 
@@ -119,16 +171,7 @@ void draw_circle(float R, float X, float Y, int numVertices)
 		t += 2 * PI / numVertices;
 	}
 	glEnd();
-}
-
-void clock_tick(int value) {
-	secondHand -= 3;
-	if (secondHand == -360)
-	{
-		exit(0);
-	}
-	glutPostRedisplay();
-	glutTimerFunc(250, clock_tick, 1);
+	//glFlush();
 }
 
 void draw_sugar_cube(int x, int y, int z, int size)
@@ -157,8 +200,6 @@ void display_character(int x, int y, int z, float size, char *character)
 }
 
 void view_setup() {
-	gluLookAt(0, eyeY, -0.5, 0, 0, -200, 0, 1, 1);
-	if (running == 1) {
 		glMatrixMode(GL_PROJECTION);
 		glLoadIdentity();
 		if (view_state == 0)
@@ -169,21 +210,22 @@ void view_setup() {
 			glOrtho(-320.0, 320.0, -320.0, 320.0, 0, 640.0);
 		}
 		glMatrixMode(GL_MODELVIEW);
+		//glLoadIdentity();
 	}
-}
+	//gluLookAt(0, eyeY, -0.5, 0, 0, -200, 0, 1, 1);
 
 void background(void) {
 	glClear(GL_COLOR_BUFFER_BIT);
 	glColor3f(1.0, 1.0, 0.0);
+	//view_setup();
 	draw_sugar_cube(-210, 0, -200, 40);
 	display_character(-225, -3, -180, 0.07, food);
-	//display_character(-200, -3, -200, 0.7, finish);
 
 	glColor3f(0.0, 0.0, 0.0);
 	glLoadIdentity();
 	glTranslatef(190, 220, -200);
 
-	draw_circle(40.0, 50.0, 50.0, 360);
+	draw_circle(40.0, 50.0, 50.0, 200);
 
 	glLoadIdentity();
 	glTranslatef(240, 270, -200);
@@ -194,6 +236,7 @@ void background(void) {
 	//glVertex3f(240, 310, -200);
 	//glVertex3f(240, 270, -200);
 	glEnd();
+	//glFlush();
 }
 
 void display_func_end(void) {
@@ -205,6 +248,7 @@ void display_func_end(void) {
 }
 
 void display_func(void) {
+
 	if (210 + horizontal_move == -210 && vertical_move == 0) {
 		display_func_end();
 		glutKeyboardFunc(NULL);
@@ -213,8 +257,8 @@ void display_func(void) {
 		background();
 		glColor3f(ant_color_r, ant_color_g, ant_color_b);
 		draw_ant();
-		glFlush();
-		//glFinish();
+		//glFlush();
+		glFinish();
 
 	}
 }
@@ -237,9 +281,20 @@ void gate_delay() {
 		gateOpenDelay = 1;
 	}
 }
+
+void clock_tick(int value) {
+	secondHand -= 3;
+	if (secondHand == -360)
+	{
+		exit(0);
+	}
+	//glutPostRedisplay();
+	glutTimerFunc(250, clock_tick, 1);
+}
+
 void timer_func(int val) {
 
-	if (isAnimate == 1) {
+	if (isAnimate != 0) {
 		//glutKeyboardFunc(NULL);
 		if (left == 1) {
 			horizontal_move -= 5;
@@ -258,7 +313,7 @@ void timer_func(int val) {
 		//glutKeyboardFunc(NULL);
 
 
-		//isAnimate = 0;
+		isAnimate = 0;
 		//key = 1;
 		//glutKeyboardFunc(keyboard_handler);
 	}
@@ -283,11 +338,18 @@ void keyboard_handler(unsigned char key, int x, int y)
 		up = 0;
 		down = 0;
 		horizontal_move -= 5;
+		//glutPostRedisplay();
+		gate_delay();
+		horizontal_move -= 5;
 		glutPostRedisplay();
-		//gate_delay();
 		//glutKeyboardFunc(NULL);
-		isAnimate = 1;
-		glutTimerFunc(60, timer_func, 1);
+		//isAnimate += 1;
+		//isAnimate = 0;
+		//glutTimerFunc(60, timer_func, 1);
+		std::cout << isAnimate << std::endl;
+		std::cout << isAnimate << std::endl;
+		std::cout << isAnimate << std::endl;
+		
 		break;
 		//j
 	case 74: case 106:
@@ -297,8 +359,11 @@ void keyboard_handler(unsigned char key, int x, int y)
 		down = 0;
 		horizontal_move += 5;
 		glutPostRedisplay();
-		isAnimate = 1;
-		glutTimerFunc(60, timer_func, 1);
+		gate_delay();
+		horizontal_move += 5;
+		glutPostRedisplay();
+		//isAnimate = 1;
+		//glutTimerFunc(60, timer_func, 1);
 		break;
 		//u
 	case 85: case 117:
@@ -308,8 +373,11 @@ void keyboard_handler(unsigned char key, int x, int y)
 		down = 0;
 		vertical_move += 5;
 		glutPostRedisplay();
-		isAnimate = 1;
-		glutTimerFunc(60, timer_func, 1);
+		gate_delay();
+		vertical_move += 5;
+		glutPostRedisplay();
+		//isAnimate = 1;
+		//glutTimerFunc(60, timer_func, 1);
 		break;
 		//n
 	case 78: case 110:
@@ -319,8 +387,11 @@ void keyboard_handler(unsigned char key, int x, int y)
 		down = 1;
 		vertical_move -= 5;
 		glutPostRedisplay();
-		isAnimate = 1;
-		glutTimerFunc(60, timer_func, 1);
+		gate_delay();
+		vertical_move -= 5;
+		glutPostRedisplay();
+		//isAnimate = 1;
+		//glutTimerFunc(60, timer_func, 1);
 		break;
 	case 67: case 99:
 		if (ant_color_r == 0 and ant_color_g == 0) {
@@ -353,14 +424,13 @@ int main(int argc, char ** argv) {
 	std::cout << "Any Key Click Will Start Animation.." << std::endl;
 	glutInit(&argc, argv);
 	my_setup(canvas_Width, canvas_Height, canvas_Name);
-	view_setup();
-	glClearColor(0.5, 1.0, 0.5, 1.0);
+	//view_setup();
+	
+	glutTimerFunc(250, clock_tick, 2);
 	glutDisplayFunc(display_func);
-	glutTimerFunc(250, clock_tick, 1);
-
 	glutKeyboardFunc(keyboard_handler);
-
-	running = 1;
+	
+	init();
 	glutMainLoop();
 	return 0;
 }
