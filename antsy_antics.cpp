@@ -12,6 +12,14 @@
 static float _angle = 0;
 static int view_state = 1; //Ortho view = 1, Perspective = 0
 
+static int horizontal_move = 0;
+static int vertical_move = 0;
+
+static int left = 0;
+static int right = 0;
+static int up = 0;
+static int down = 0;
+
 void draw_connection_joints(int x) 
 {
 	glBegin(GL_LINES);
@@ -37,21 +45,21 @@ void draw_ant()
 {
 	//first sphere
 	glLoadIdentity();
-	glTranslatef(150, 0, -200);
+	glTranslatef(150 + horizontal_move, vertical_move, -200);
 	glutWireSphere(25, 25, 25);
 	draw_ant_legs(15, 55);
 	draw_connection_joints(35);
 
 	//second sphere
 	glLoadIdentity();
-	glTranslatef(210, 0, -200);
+	glTranslatef(210 + horizontal_move, vertical_move, -200);
 	glutWireSphere(25, 25, 25);
 	draw_ant_legs(0, 55);
 	draw_connection_joints(35);
 
 	//third sphere
 	glLoadIdentity();
-	glTranslatef(270, 0, -200);
+	glTranslatef(270 + horizontal_move, vertical_move, -200);
 	glutWireSphere(25, 25, 25);
 	draw_ant_legs(15, 55);
 }
@@ -71,7 +79,7 @@ void draw_circle(float R, float X, float Y, int numVertices)
 	glEnd();
 }
 
-void draw_food(int x, int y, int z, int size)
+void draw_sugar_cube(int x, int y, int z, int size)
 {
 	glLoadIdentity();
 	glTranslatef(x, y, z);
@@ -80,10 +88,16 @@ void draw_food(int x, int y, int z, int size)
 
 void writeStrokeString(void *font, char *string)
 {
-	char *c;
-	for (c = string; *c != '\0'; c++) {
-		glutStrokeCharacter(font, *c);
+	//char *c;
+	int l, i;
+	l = strlen(string);
+	for (i = 0; i < l; i++)
+	{
+		glutStrokeCharacter(font, string[i]);
 	}
+	//for (c = string; *c != '\0'; c++) {
+		//glutBitmapCharacter(font, *c);
+	//}
 
 }
 
@@ -91,9 +105,10 @@ void display_character(int x, int y, int z, float size)
 {
 	char food[] = "YUM";
 	glLoadIdentity();
-	glTranslatef(x, y, z);
+	glTranslatef(x-3, y-3, -200);
 	glScalef(size, size, 0);
-	writeStrokeString(GLUT_STROKE_MONO_ROMAN, food);
+	//glRasterPos3i(x, y, z);
+	writeStrokeString(GLUT_STROKE_ROMAN, food);
 }
 
 void update(int value)
@@ -107,8 +122,9 @@ void update(int value)
 }
 
 void display_func(void) {
-	glClearColor(0.7, 1.0, 0.9, 1.0);
+	glClearColor(0.5, 1.0, 0.5, 1.0);
 	glClear(GL_COLOR_BUFFER_BIT);
+	gluLookAt(0, 0, -0.5, 0, 0, -200, 0, 1, 1);
 	if (view_state == 0)
 	{
 		glMatrixMode(GL_PROJECTION);
@@ -117,7 +133,7 @@ void display_func(void) {
 		gluPerspective(116.0, 1.0, 1.0, 640.0);
 		glMatrixMode(GL_MODELVIEW);
 		//glLoadIdentity();
-		//gluLookAt(0, 0, -5.0, 0, 0, -200, 0, 1, 1);
+		
 	}
 	else {
 		glMatrixMode(GL_PROJECTION);
@@ -129,9 +145,10 @@ void display_func(void) {
 		//glLoadIdentity();
 	}
 
+	glColor3f(1.0, 1.0, 0.0);
+	draw_sugar_cube(-210, 0, -200, 40);
+	display_character(-210, 0, -200, 0.07);
 	glColor3f(0.0, 0.0, 0.0);
-	draw_food(-210, 0, -200, 40);
-	display_character(-210, 0, -200, 0.05);
 	draw_ant();
 
 	glLoadIdentity();
@@ -143,19 +160,69 @@ void display_func(void) {
 	glVertex3f(240, 300, -200);
 	glVertex3f(240, 270, -200);
 	glEnd();
+	//glRotatef((360 / 60) * sec_ticks, 0.0, 0.0, 1.0);
 	glFlush();
 
 	
 }
 
+void timer_func(int val) {
+	if (left == 1) {
+		horizontal_move -= 5;
+	} else if (right == 1) {
+		horizontal_move += 5;
+	}
+	else if (up == 1) {
+		vertical_move += 5;
+	}
+	else if (down == 1) {
+		vertical_move -= 5;
+	}
+	glutPostRedisplay();
+	//glutTimerFunc(250, timer_func, 0);
+}
 void keyboard_handler(unsigned char key, int x, int y)
 {
 	switch (key)
 	{
-	case 112:
+		//p
+	case 80: case 112:
 		//exit(0);
 		view_state = abs(view_state - 1);
 		glutPostRedisplay();
+		break;
+		//h
+	case 72: case 104:
+		left = 1;
+		right = 0;
+		up = 0;
+		down = 0;
+		glutTimerFunc(60, timer_func, 0);
+		break;
+		//j
+	case 74: case 106:
+		left = 0;
+		right = 1;
+		up = 0;
+		down = 0;
+		glutTimerFunc(60, timer_func, 0);
+		break;
+		//u
+	case 85: case 117:
+		left = 0;
+		right = 0;
+		up = 1;
+		down = 0;
+		glutTimerFunc(60, timer_func, 0);
+		break;
+		//n
+	case 78: case 110:
+		left = 0;
+		right = 0;
+		up = 0;
+		down = 1;
+		glutTimerFunc(60, timer_func, 0);
+		break;
 	default:
 		break;
 	}
