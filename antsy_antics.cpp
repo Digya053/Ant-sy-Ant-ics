@@ -1,4 +1,4 @@
-#include "pch.h"
+//#include "pch.h"
 #include <iostream>
 #include <GL/glew.h>
 #include <GL/freeglut.h>
@@ -50,26 +50,24 @@ char canvas_Name[] = "Ant-sy Ant-ics";
 #define canvas_Width 640
 #define canvas_Height 640
 
-void draw_connection_joints(int x) 
+void draw_connection_joints(int x)
 {
 	glBegin(GL_LINES);
 	glVertex3f(0, 0, 0);
 	glVertex3f(x, 0, 0);
 	glEnd();
-	
+
 	/*glBegin(GL_LINES);
 	glVertex3f(150, 0, -200);
 	glVertex3f(150+horizontal_move+35, vertical_move, -200);
-
 	glVertex3f(210, 0, -200);
 	glVertex3f(210 + horizontal_move + 35, vertical_move, -200);
-
 	glVertex3f(270, 0, -200);
 	glVertex3f(270 + horizontal_move + 35, vertical_move, -200);
 	glEnd();*/
 }
 
-void draw_ant_legs(int x, int y) 
+void draw_ant_legs(int x, int y)
 {
 
 	glBegin(GL_LINE_STRIP);
@@ -77,10 +75,10 @@ void draw_ant_legs(int x, int y)
 	glVertex3f(0, 0, 0);
 	glVertex3f(x, -y, 0);
 	glEnd();
-	
+
 }
 
-void draw_ant() 
+void draw_ant()
 {
 	//first sphere
 	glLoadIdentity();
@@ -102,7 +100,7 @@ void draw_ant()
 	glTranslatef(270 + horizontal_move, vertical_move, -200);
 	glutWireSphere(25, 25, 25);
 	draw_ant_legs(15, 55);
-	
+
 
 	//glFlush();
 	//glPopMatrix();
@@ -151,7 +149,7 @@ void writeBitmapString(void *font, char *string)
 
 }
 
-void display_character(int x, int y, int z, float size, char *character) 
+void display_character(int x, int y, int z, float size, char *character)
 {
 	glLoadIdentity();
 	glRasterPos3i(x, y, z);
@@ -165,7 +163,7 @@ void view_setup() {
 		glLoadIdentity();
 		if (view_state == 0)
 		{
-			gluPerspective(116.0, canvas_Width/canvas_Height, 1.0, 640.0);
+			gluPerspective(116.0, canvas_Width / canvas_Height, 1.0, 640.0);
 		}
 		else {
 			glOrtho(-320.0, 320.0, -320.0, 320.0, 0, 640.0);
@@ -184,7 +182,7 @@ void background(void) {
 	glColor3f(0.0, 0.0, 0.0);
 	glLoadIdentity();
 	glTranslatef(190, 220, -200);
-	
+
 	draw_circle(40.0, 50.0, 50.0, 360);
 
 	glLoadIdentity();
@@ -200,18 +198,18 @@ void background(void) {
 
 void display_func_end(void) {
 	glClearColor(0.5, 1.0, 0.5, 1.0);
-		glClear(GL_COLOR_BUFFER_BIT);
-		glColor3f(1.0, 0, 0);
-		display_character(-15, 0, -200, 1, finish);
-		//glFlush();
-	}
+	glClear(GL_COLOR_BUFFER_BIT);
+	glColor3f(1.0, 0, 0);
+	display_character(-15, 0, -200, 1, finish);
+	//glFlush();
+}
 
 void display_func(void) {
 	if (210 + horizontal_move == -210 && vertical_move == 0) {
 		display_func_end();
 		glutKeyboardFunc(NULL);
-		
-	} else{
+	}
+	else {
 		background();
 		glColor3f(ant_color_r, ant_color_g, ant_color_b);
 		draw_ant();
@@ -240,9 +238,9 @@ void gate_delay() {
 	}
 }
 void timer_func(int val) {
-	
+
 	if (isAnimate == 1) {
-		glutKeyboardFunc(NULL);
+		//glutKeyboardFunc(NULL);
 		if (left == 1) {
 			horizontal_move -= 5;
 		}
@@ -256,11 +254,11 @@ void timer_func(int val) {
 			vertical_move -= 5;
 		}
 		glutPostRedisplay();
-		glutTimerFunc(60, timer_func, 1);
+		//glutTimerFunc(60, timer_func, 1);
 		//glutKeyboardFunc(NULL);
 
-		
-		isAnimate = 0;
+
+		//isAnimate = 0;
 		//key = 1;
 		//glutKeyboardFunc(keyboard_handler);
 	}
@@ -284,11 +282,12 @@ void keyboard_handler(unsigned char key, int x, int y)
 		right = 0;
 		up = 0;
 		down = 0;
-		//horizontal_move -= 5;
+		horizontal_move -= 5;
+		glutPostRedisplay();
 		//gate_delay();
 		//glutKeyboardFunc(NULL);
 		isAnimate = 1;
-		glutTimerFunc(0, timer_func, 1);
+		glutTimerFunc(60, timer_func, 1);
 		break;
 		//j
 	case 74: case 106:
@@ -296,9 +295,10 @@ void keyboard_handler(unsigned char key, int x, int y)
 		right = 1;
 		up = 0;
 		down = 0;
-		//horizontal_move += 5;
+		horizontal_move += 5;
+		glutPostRedisplay();
 		isAnimate = 1;
-		glutTimerFunc(0, timer_func, 1);
+		glutTimerFunc(60, timer_func, 1);
 		break;
 		//u
 	case 85: case 117:
@@ -306,9 +306,10 @@ void keyboard_handler(unsigned char key, int x, int y)
 		right = 0;
 		up = 1;
 		down = 0;
-		//vertical_move += 5;
+		vertical_move += 5;
+		glutPostRedisplay();
 		isAnimate = 1;
-		glutTimerFunc(0, timer_func, 1);
+		glutTimerFunc(60, timer_func, 1);
 		break;
 		//n
 	case 78: case 110:
@@ -316,7 +317,8 @@ void keyboard_handler(unsigned char key, int x, int y)
 		right = 0;
 		up = 0;
 		down = 1;
-		//vertical_move -= 5;
+		vertical_move -= 5;
+		glutPostRedisplay();
 		isAnimate = 1;
 		glutTimerFunc(60, timer_func, 1);
 		break;
@@ -355,9 +357,9 @@ int main(int argc, char ** argv) {
 	glClearColor(0.5, 1.0, 0.5, 1.0);
 	glutDisplayFunc(display_func);
 	glutTimerFunc(250, clock_tick, 1);
-	
+
 	glutKeyboardFunc(keyboard_handler);
-	
+
 	running = 1;
 	glutMainLoop();
 	return 0;
