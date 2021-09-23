@@ -3,6 +3,7 @@
 #include <GL/glew.h>
 #include <GL/freeglut.h>
 #include "OpenGL445Setup.h"
+#include <chrono>
 
 // Drawing routine.
 
@@ -26,6 +27,22 @@ static float ant_color_b = 0.0;
 
 static float eyeY = 0.0;
 
+static int isAnimate = 0;
+static int animationPeriod = 60;
+static int key = 1;
+
+// initialize gateOpenDelay and flag  to zero(0)
+
+int gateOpenDelay = 0;
+int flag = 0;
+
+// initialize the gateOpenDelayTime to 5 secs, and startTime to zero(0)
+long gateOpenDelayTime = 5000;
+long startTime = 0;
+
+char food[] = "YUM";
+char finish[] = "YOU WIN";
+
 void draw_connection_joints(int x) 
 {
 	glBegin(GL_LINES);
@@ -36,12 +53,18 @@ void draw_connection_joints(int x)
 
 void draw_ant_legs(int x, int y) 
 {
-	glBegin(GL_LINES);
+	/*glBegin(GL_LINES);
 	glVertex3f(0, 0, 0);
 	glVertex3f(x, y, 0);
 	glEnd();
 
 	glBegin(GL_LINES);
+	glVertex3f(0, 0, 0);
+	glVertex3f(x, -y, 0);
+	glEnd();*/
+
+	glBegin(GL_LINE_STRIP);
+	glVertex3f(x, y, 0);
 	glVertex3f(0, 0, 0);
 	glVertex3f(x, -y, 0);
 	glEnd();
@@ -55,6 +78,7 @@ void draw_ant()
 	glutWireSphere(25, 25, 25);
 	draw_ant_legs(15, 55);
 	draw_connection_joints(35);
+	//glPopMatrix();
 
 	//second sphere
 	glLoadIdentity();
@@ -68,6 +92,10 @@ void draw_ant()
 	glTranslatef(270 + horizontal_move, vertical_move, -200);
 	glutWireSphere(25, 25, 25);
 	draw_ant_legs(15, 55);
+	
+
+	//glFlush();
+	//glPopMatrix();
 }
 
 void draw_circle(float R, float X, float Y, int numVertices)
@@ -107,14 +135,13 @@ void writeStrokeString(void *font, char *string)
 
 }
 
-void display_character(int x, int y, int z, float size) 
+void display_character(int x, int y, int z, float size, char *character) 
 {
-	char food[] = "YUM";
 	glLoadIdentity();
-	glTranslatef(x-3, y-3, -200);
+	glTranslatef(x, y, -200);
 	glScalef(size, size, 0);
 	//glRasterPos3i(x, y, z);
-	writeStrokeString(GLUT_STROKE_ROMAN, food);
+	writeStrokeString(GLUT_STROKE_ROMAN,character);
 }
 
 void update(int value)
@@ -127,10 +154,7 @@ void update(int value)
 	glutPostRedisplay();
 }
 
-void display_func(void) {
-	glClearColor(0.5, 1.0, 0.5, 1.0);
-	glClear(GL_COLOR_BUFFER_BIT);
-	gluLookAt(0, eyeY, -0.5, 0, 0, -200, 0, 1, 1);
+void setup() {
 	if (view_state == 0)
 	{
 		glMatrixMode(GL_PROJECTION);
@@ -139,7 +163,7 @@ void display_func(void) {
 		gluPerspective(116.0, 1.0, 1.0, 640.0);
 		glMatrixMode(GL_MODELVIEW);
 		//glLoadIdentity();
-		
+
 	}
 	else {
 		glMatrixMode(GL_PROJECTION);
@@ -150,12 +174,14 @@ void display_func(void) {
 		glMatrixMode(GL_MODELVIEW);
 		//glLoadIdentity();
 	}
+}
 
+void background(void) {
+	glClear(GL_COLOR_BUFFER_BIT);
 	glColor3f(1.0, 1.0, 0.0);
 	draw_sugar_cube(-210, 0, -200, 40);
-	display_character(-210, 0, -200, 0.07);
-	glColor3f(ant_color_r, ant_color_g, ant_color_b);
-	draw_ant();
+	display_character(-213, -3, -200, 0.07, food);
+	//display_character(-200, -3, -200, 0.7, finish);
 
 	glColor3f(0.0, 0.0, 0.0);
 	glLoadIdentity();
@@ -167,27 +193,75 @@ void display_func(void) {
 	glVertex3f(240, 300, -200);
 	glVertex3f(240, 270, -200);
 	glEnd();
-	//glRotatef((360 / 60) * sec_ticks, 0.0, 0.0, 1.0);
-	glFlush();
-
-	
 }
 
+void display_func_end(void) {
+	glClearColor(0.5, 1.0, 0.5, 1.0);
+		glClear(GL_COLOR_BUFFER_BIT);
+		glColor3f(1.0, 0, 0);
+		display_character(-200, -3, -200, 0.7, finish);
+		glFlush();
+	}
+
+void display_func(void) {
+	if (210 + horizontal_move <= -210 && vertical_move <= 0) {
+		display_func_end();
+		
+	} else{
+		background();
+		glColor3f(ant_color_r, ant_color_g, ant_color_b);
+		draw_ant();
+		glFlush();
+		glFinish();
+
+	}
+}
+
+
+long double millis() {
+	return std::chrono::duration_cast<std::chrono::milliseconds>(
+		std::chrono::system_clock::now().time_since_epoch()
+		).count();
+}
+
+void gate_delay() {
+	if (flag == 0) {
+		startTime = millis();
+		flag = 1;
+	}
+	// If the timer is finished, then set the flag gateOpenDelay  = 1
+
+	if (millis() - startTime >= gateOpenDelayTime) {
+		gateOpenDelay = 1;
+	}
+}
 void timer_func(int val) {
-	if (left == 1) {
-		horizontal_move -= 5;
-	} else if (right == 1) {
-		horizontal_move += 5;
+	
+	if (isAnimate == 1) {
+		if (left == 1) {
+			horizontal_move -= 5;
+		}
+		else if (right == 1) {
+			horizontal_move += 5;
+		}
+		else if (up == 1) {
+			vertical_move += 5;
+		}
+		else if (down == 1) {
+			vertical_move -= 5;
+		}
+		
+		glutTimerFunc(60, timer_func, 1);
+		//glutKeyboardFunc(NULL);
+
+		glutPostRedisplay();
+		isAnimate = 0;
+		key = 1;
+		//glutKeyboardFunc(keyboard_handler);
 	}
-	else if (up == 1) {
-		vertical_move += 5;
-	}
-	else if (down == 1) {
-		vertical_move -= 5;
-	}
-	glutPostRedisplay();
-	//glutTimerFunc(250, timer_func, 0);
 }
+
+
 void keyboard_handler(unsigned char key, int x, int y)
 {
 	switch (key)
@@ -196,6 +270,7 @@ void keyboard_handler(unsigned char key, int x, int y)
 	case 80: case 112:
 		//exit(0);
 		view_state = abs(view_state - 1);
+		setup();
 		glutPostRedisplay();
 		break;
 		//h
@@ -204,7 +279,11 @@ void keyboard_handler(unsigned char key, int x, int y)
 		right = 0;
 		up = 0;
 		down = 0;
-		glutTimerFunc(60, timer_func, 0);
+		//horizontal_move -= 5;
+		//gate_delay();
+		//glutKeyboardFunc(NULL);
+		isAnimate = 1;
+		glutTimerFunc(0, timer_func, 1);
 		break;
 		//j
 	case 74: case 106:
@@ -212,7 +291,9 @@ void keyboard_handler(unsigned char key, int x, int y)
 		right = 1;
 		up = 0;
 		down = 0;
-		glutTimerFunc(60, timer_func, 0);
+		//horizontal_move += 5;
+		isAnimate = 1;
+		glutTimerFunc(0, timer_func, 1);
 		break;
 		//u
 	case 85: case 117:
@@ -220,7 +301,9 @@ void keyboard_handler(unsigned char key, int x, int y)
 		right = 0;
 		up = 1;
 		down = 0;
-		glutTimerFunc(60, timer_func, 0);
+		//vertical_move += 5;
+		isAnimate = 1;
+		glutTimerFunc(0, timer_func, 1);
 		break;
 		//n
 	case 78: case 110:
@@ -228,7 +311,9 @@ void keyboard_handler(unsigned char key, int x, int y)
 		right = 0;
 		up = 0;
 		down = 1;
-		glutTimerFunc(60, timer_func, 0);
+		//vertical_move -= 5;
+		isAnimate = 1;
+		glutTimerFunc(60, timer_func, 1);
 		break;
 	case 67: case 99:
 		if (ant_color_r == 0 and ant_color_g == 0) {
@@ -261,10 +346,23 @@ int main(int argc, char ** argv) {
 	std::cout << "Any Key Click Will Start Animation.." << std::endl;
 	glutInit(&argc, argv);
 	my_setup(canvas_Width, canvas_Height, canvas_Name);
+	
+	gluLookAt(0, eyeY, -0.5, 0, 0, -200, 0, 1, 1);
+	setup();
+
+
+	glClearColor(0.5, 1.0, 0.5, 1.0);
+	//whole_scene();
 
 	glutDisplayFunc(display_func);
-	glutKeyboardFunc(keyboard_handler);
-	//glutTimerFunc(250, update, 0);
+	if (key == 0) {
+		glutKeyboardFunc(NULL);
+	}
+	else if (key == 1) {
+		glutKeyboardFunc(keyboard_handler);
+	}
+	
+	//glutTimerFunc(250, timer_func, 1);
 	glutMainLoop();
 	return 0;
 }
