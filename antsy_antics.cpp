@@ -20,6 +20,12 @@ static int right = 0;
 static int up = 0;
 static int down = 0;
 
+static float ant_color_r = 0.0;
+static float ant_color_g = 0.0;
+static float ant_color_b = 0.0;
+
+static float eyeY = 0.0;
+
 void draw_connection_joints(int x) 
 {
 	glBegin(GL_LINES);
@@ -124,7 +130,7 @@ void update(int value)
 void display_func(void) {
 	glClearColor(0.5, 1.0, 0.5, 1.0);
 	glClear(GL_COLOR_BUFFER_BIT);
-	gluLookAt(0, 0, -0.5, 0, 0, -200, 0, 1, 1);
+	gluLookAt(0, eyeY, -0.5, 0, 0, -200, 0, 1, 1);
 	if (view_state == 0)
 	{
 		glMatrixMode(GL_PROJECTION);
@@ -148,9 +154,10 @@ void display_func(void) {
 	glColor3f(1.0, 1.0, 0.0);
 	draw_sugar_cube(-210, 0, -200, 40);
 	display_character(-210, 0, -200, 0.07);
-	glColor3f(0.0, 0.0, 0.0);
+	glColor3f(ant_color_r, ant_color_g, ant_color_b);
 	draw_ant();
 
+	glColor3f(0.0, 0.0, 0.0);
 	glLoadIdentity();
 	glTranslatef(190, 220, -200);
 	draw_circle(40.0, 50.0, 50.0, 360);
@@ -222,6 +229,21 @@ void keyboard_handler(unsigned char key, int x, int y)
 		up = 0;
 		down = 1;
 		glutTimerFunc(60, timer_func, 0);
+		break;
+	case 67: case 99:
+		if (ant_color_r == 0 and ant_color_g == 0) {
+			ant_color_r = 1.0;
+			ant_color_g = 0.647;
+		}
+		else {
+			ant_color_r = 0.0;
+			ant_color_g = 0.0;
+		}
+		glutPostRedisplay();
+		break;
+	case 84: case 116:
+		eyeY = 25;
+		glutPostRedisplay();
 		break;
 	default:
 		break;
