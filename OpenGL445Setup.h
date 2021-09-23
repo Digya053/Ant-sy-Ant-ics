@@ -38,6 +38,12 @@ void my_3d_projection(int width, int height)
 	width_bound = (GLfloat)width; height_bound = (GLfloat)height;
 
 	glViewport(0, 0, width, height);
+	glMatrixMode(GL_PROJECTION);
+
+	glLoadIdentity();
+	glOrtho(-320.0, 320.0, -320.0, 320.0, 0, 640.0);
+
+	glMatrixMode(GL_MODELVIEW);
 
 }
 

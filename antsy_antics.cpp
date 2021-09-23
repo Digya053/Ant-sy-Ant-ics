@@ -35,6 +35,8 @@ static int key = 1;
 
 int gateOpenDelay = 0;
 int flag = 0;
+static int running = 0;
+static int secondHand = 0;
 
 // initialize the gateOpenDelayTime to 5 secs, and startTime to zero(0)
 long gateOpenDelayTime = 5000;
@@ -104,6 +106,16 @@ void draw_circle(float R, float X, float Y, int numVertices)
 	glEnd();
 }
 
+void clock_tick(int value) {
+	secondHand -= 3;
+	if (secondHand == -360)
+	{
+		exit(0);
+	}
+	glutPostRedisplay();
+	glutTimerFunc(250, clock_tick, 1);
+}
+
 void draw_sugar_cube(int x, int y, int z, int size)
 {
 	glLoadIdentity();
@@ -111,28 +123,22 @@ void draw_sugar_cube(int x, int y, int z, int size)
 	glutWireCube(size);
 }
 
-void writeStrokeString(void *font, char *string)
+void writeBitmapString(void *font, char *string)
 {
-	//char *c;
 	int l, i;
 	l = strlen(string);
 	for (i = 0; i < l; i++)
 	{
-		glutStrokeCharacter(font, string[i]);
+		glutBitmapCharacter(font, string[i]);
 	}
-	//for (c = string; *c != '\0'; c++) {
-		//glutBitmapCharacter(font, *c);
-	//}
 
 }
 
 void display_character(int x, int y, int z, float size, char *character) 
 {
 	glLoadIdentity();
-	glTranslatef(x, y, -200);
-	glScalef(size, size, 0);
-	//glRasterPos3i(x, y, z);
-	writeStrokeString(GLUT_STROKE_ROMAN,character);
+	glRasterPos3i(x, y, z);
+	writeBitmapString(GLUT_BITMAP_HELVETICA_12, character);
 }
 
 void update(int value)
@@ -146,24 +152,26 @@ void update(int value)
 }
 
 void setup() {
-	if (view_state == 0)
-	{
-		glMatrixMode(GL_PROJECTION);
-		glLoadIdentity();
+	if (running == 1) {
+		if (view_state == 0)
+		{
+			glMatrixMode(GL_PROJECTION);
+			glLoadIdentity();
 
-		gluPerspective(116.0, 1.0, 1.0, 640.0);
-		glMatrixMode(GL_MODELVIEW);
-		//glLoadIdentity();
+			gluPerspective(116.0, 1.0, 1.0, 640.0);
+			glMatrixMode(GL_MODELVIEW);
+			//glLoadIdentity();
 
-	}
-	else {
-		glMatrixMode(GL_PROJECTION);
+		}
+		else {
+			glMatrixMode(GL_PROJECTION);
 
-		glLoadIdentity();
-		glOrtho(-320.0, 320.0, -320.0, 320.0, 0, 640.0);
+			glLoadIdentity();
+			glOrtho(-320.0, 320.0, -320.0, 320.0, 0, 640.0);
 
-		glMatrixMode(GL_MODELVIEW);
-		//glLoadIdentity();
+			glMatrixMode(GL_MODELVIEW);
+			//glLoadIdentity();
+		}
 	}
 }
 
@@ -171,18 +179,23 @@ void background(void) {
 	glClear(GL_COLOR_BUFFER_BIT);
 	glColor3f(1.0, 1.0, 0.0);
 	draw_sugar_cube(-210, 0, -200, 40);
-	display_character(-213, -3, -200, 0.07, food);
+	display_character(-225, -3, -180, 0.07, food);
 	//display_character(-200, -3, -200, 0.7, finish);
 
 	glColor3f(0.0, 0.0, 0.0);
 	glLoadIdentity();
 	glTranslatef(190, 220, -200);
+	
 	draw_circle(40.0, 50.0, 50.0, 360);
 
 	glLoadIdentity();
+	glTranslatef(240, 270, -200);
+	glRotated(secondHand, 0, 0, 1);
 	glBegin(GL_LINES);
-	glVertex3f(240, 300, -200);
-	glVertex3f(240, 270, -200);
+	glVertex3f(0, 0, 0);
+	glVertex3f(0, 40, 0);
+	//glVertex3f(240, 310, -200);
+	//glVertex3f(240, 270, -200);
 	glEnd();
 }
 
@@ -345,16 +358,13 @@ int main(int argc, char ** argv) {
 
 	glClearColor(0.5, 1.0, 0.5, 1.0);
 	//whole_scene();
-
+	glutTimerFunc(250, clock_tick, 1);
 	glutDisplayFunc(display_func);
-	if (key == 0) {
-		glutKeyboardFunc(NULL);
-	}
-	else if (key == 1) {
-		glutKeyboardFunc(keyboard_handler);
-	}
+	
+	glutKeyboardFunc(keyboard_handler);
 	
 	//glutTimerFunc(250, timer_func, 1);
+	running = 1;
 	glutMainLoop();
 	return 0;
 }
