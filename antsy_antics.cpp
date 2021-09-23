@@ -44,6 +44,11 @@ long startTime = 0;
 
 char food[] = "YUM";
 char finish[] = "YOU WIN";
+char canvas_Name[] = "Ant-sy Ant-ics";
+
+// Sets width and height of canvas to 480 by 480.
+#define canvas_Width 640
+#define canvas_Height 640
 
 void draw_connection_joints(int x) 
 {
@@ -151,14 +156,15 @@ void update(int value)
 	glutPostRedisplay();
 }
 
-void setup() {
+void view_setup() {
+	gluLookAt(0, eyeY, -0.5, 0, 0, -200, 0, 1, 1);
 	if (running == 1) {
 		if (view_state == 0)
 		{
 			glMatrixMode(GL_PROJECTION);
 			glLoadIdentity();
 
-			gluPerspective(116.0, 1.0, 1.0, 640.0);
+			gluPerspective(116.0, canvas_Width/canvas_Height, 1.0, 640.0);
 			glMatrixMode(GL_MODELVIEW);
 			//glLoadIdentity();
 
@@ -275,7 +281,7 @@ void keyboard_handler(unsigned char key, int x, int y)
 	case 80: case 112:
 		//exit(0);
 		view_state = abs(view_state - 1);
-		setup();
+		view_setup();
 		glutPostRedisplay();
 		break;
 		//h
@@ -332,7 +338,13 @@ void keyboard_handler(unsigned char key, int x, int y)
 		glutPostRedisplay();
 		break;
 	case 84: case 116:
-		eyeY = 25;
+		if (eyeY == 0) {
+			eyeY = 25;
+		}
+		else {
+			eyeY = 0;
+		}
+		view_setup();
 		glutPostRedisplay();
 		break;
 	default:
@@ -341,29 +353,17 @@ void keyboard_handler(unsigned char key, int x, int y)
 }
 
 
-// Sets width and height of canvas to 480 by 480.
-#define canvas_Width 640
-#define canvas_Height 640
-char canvas_Name[] = "Ant-sy Ant-ics";
-
-
 int main(int argc, char ** argv) {
 	std::cout << "Any Key Click Will Start Animation.." << std::endl;
 	glutInit(&argc, argv);
 	my_setup(canvas_Width, canvas_Height, canvas_Name);
-	
-	//gluLookAt(0, eyeY, -0.5, 0, 0, -200, 0, 1, 1);
-	setup();
-
-
+	view_setup();
 	glClearColor(0.5, 1.0, 0.5, 1.0);
-	//whole_scene();
-	glutTimerFunc(250, clock_tick, 1);
 	glutDisplayFunc(display_func);
+	glutTimerFunc(250, clock_tick, 1);
 	
 	glutKeyboardFunc(keyboard_handler);
 	
-	//glutTimerFunc(250, timer_func, 1);
 	running = 1;
 	glutMainLoop();
 	return 0;
