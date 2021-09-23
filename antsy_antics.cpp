@@ -53,15 +53,6 @@ void draw_connection_joints(int x)
 
 void draw_ant_legs(int x, int y) 
 {
-	/*glBegin(GL_LINES);
-	glVertex3f(0, 0, 0);
-	glVertex3f(x, y, 0);
-	glEnd();
-
-	glBegin(GL_LINES);
-	glVertex3f(0, 0, 0);
-	glVertex3f(x, -y, 0);
-	glEnd();*/
 
 	glBegin(GL_LINE_STRIP);
 	glVertex3f(x, y, 0);
@@ -204,8 +195,9 @@ void display_func_end(void) {
 	}
 
 void display_func(void) {
-	if (210 + horizontal_move <= -210 && vertical_move <= 0) {
+	if (210 + horizontal_move == -210 && vertical_move == 0) {
 		display_func_end();
+		glutKeyboardFunc(NULL);
 		
 	} else{
 		background();
@@ -347,7 +339,7 @@ int main(int argc, char ** argv) {
 	glutInit(&argc, argv);
 	my_setup(canvas_Width, canvas_Height, canvas_Name);
 	
-	gluLookAt(0, eyeY, -0.5, 0, 0, -200, 0, 1, 1);
+	//gluLookAt(0, eyeY, -0.5, 0, 0, -200, 0, 1, 1);
 	setup();
 
 
