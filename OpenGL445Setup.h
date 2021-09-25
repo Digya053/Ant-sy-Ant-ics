@@ -21,7 +21,6 @@ void my_3d_projection(int width, int height)
 	glLoadIdentity();
 	glOrtho(-320.0, 320.0, -320.0, 320.0, 0, 640.0);
 	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
 }
 
 #define STRT_X_POS 25

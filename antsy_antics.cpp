@@ -1,13 +1,8 @@
-//#include "pch.h"
+#include "pch.h"
 #include <iostream>
 #include <GL/glew.h>
 #include <GL/freeglut.h>
 #include "OpenGL445Setup.h"
-#include <chrono>
-
-// Drawing routine.
-
-#define PI 3.14159265358979324
 
 // Globals.
 static float _angle;
@@ -29,18 +24,8 @@ static float eyeY;
 
 static int isAnimate = 0;
 static int animationPeriod = 60;
-static int key;
 
-// initialize gateOpenDelay and flag  to zero(0)
-
-int gateOpenDelay;
-int flag;
-static int running;
 static int secondHand;
-
-// initialize the gateOpenDelayTime to 5 secs, and startTime to zero(0)
-long gateOpenDelayTime;
-long startTime;
 
 char food[] = "YUM";
 char finish[] = "YOU WIN!";
@@ -49,6 +34,8 @@ char canvas_Name[] = "Ant-sy Ant-ics";
 // Sets width and height of canvas to 480 by 480.
 #define canvas_Width 640
 #define canvas_Height 640
+
+#define PI 3.14159265358979324
 
 void keyboard_handler(unsigned char key, int x, int y);
 void timer_func(int val);
@@ -73,20 +60,7 @@ void init() {
 
 	eyeY = 0.0;
 
-	//isAnimate = 0;
-	//animationPeriod = 60;
-	key = 1;
-
-	// initialize gateOpenDelay and flag  to zero(0)
-
-	gateOpenDelay = 0;
-	flag = 0;
-	running = 1;
 	secondHand = 0;
-
-	// initialize the gateOpenDelayTime to 5 secs, and startTime to zero(0)
-	gateOpenDelayTime = 0.06;
-	startTime = 0;
 
 }
 
@@ -96,15 +70,6 @@ void draw_connection_joints(int x)
 	glVertex3f(0, 0, 0);
 	glVertex3f(x, 0, 0);
 	glEnd();
-
-	/*glBegin(GL_LINES);
-	glVertex3f(150, 0, -200);
-	glVertex3f(150+horizontal_move+35, vertical_move, -200);
-	glVertex3f(210, 0, -200);
-	glVertex3f(210 + horizontal_move + 35, vertical_move, -200);
-	glVertex3f(270, 0, -200);
-	glVertex3f(270 + horizontal_move + 35, vertical_move, -200);
-	glEnd();*/
 }
 
 void draw_ant_legs(int x, int y)
@@ -119,44 +84,19 @@ void draw_ant_legs(int x, int y)
 }
 
 void draw_sphere(int translate_x, int ant_x, int ant_y, int connect_x) {
-	glLoadIdentity();
+	glPushMatrix();
 	glTranslatef(translate_x, vertical_move, -200);
 	glutWireSphere(25, 16, 16);
 	draw_ant_legs(ant_x, ant_y);
 	draw_connection_joints(connect_x);
+	glPopMatrix();
 }
+
 void draw_ant()
 {
-	//first sphere
-	//glPushMatrix();
-	/*glLoadIdentity();
-	glTranslatef(150 + horizontal_move, vertical_move, -200);
-	glutWireSphere(25, 16, 16);
-	draw_ant_legs(15, 55);
-	draw_connection_joints(35);
-	//glPopMatrix();
-	//second sphere
-	//glPushMatrix();
-	glLoadIdentity();
-	glTranslatef(210 + horizontal_move, vertical_move, -200);
-	glutWireSphere(25, 16, 16);
-	draw_ant_legs(0, 55);
-	draw_connection_joints(35);
-	//glPopMatrix();
-	//third sphere
-	//glPushMatrix();
-	glLoadIdentity();
-	glTranslatef(270 + horizontal_move, vertical_move, -200);
-	glutWireSphere(25, 16, 16);
-	draw_ant_legs(15, 55);
-	//glPopMatrix();*/
 	draw_sphere(150 + horizontal_move, 15, 55, 35);
 	draw_sphere(210 + horizontal_move, 0, 55, 35);
 	draw_sphere(270 + horizontal_move, 15, 55, 0);
-
-
-	//glFlush();
-	//glPopMatrix();
 }
 
 void draw_circle(float R, float X, float Y, int numVertices)
@@ -172,14 +112,14 @@ void draw_circle(float R, float X, float Y, int numVertices)
 		t += 2 * PI / numVertices;
 	}
 	glEnd();
-	//glFlush();
 }
 
 void draw_sugar_cube(int x, int y, int z, int size)
 {
-	glLoadIdentity();
+	glPushMatrix();
 	glTranslatef(x, y, z);
 	glutWireCube(size);
+	glPopMatrix();
 }
 
 void writeBitmapString(void *font, char *string)
@@ -195,9 +135,10 @@ void writeBitmapString(void *font, char *string)
 
 void display_character(int x, int y, int z, float size, char *character)
 {
-	glLoadIdentity();
+	glPushMatrix();
 	glRasterPos3i(x, y, z);
 	writeBitmapString(GLUT_BITMAP_HELVETICA_12, character);
+	glPopMatrix();
 }
 
 void view_setup() {
@@ -211,35 +152,42 @@ void view_setup() {
 		glOrtho(-320.0, 320.0, -320.0, 320.0, 0, 640.0);
 	}
 	glMatrixMode(GL_MODELVIEW);
-	//glLoadIdentity();
-}
-//gluLookAt(0, eyeY, -0.5, 0, 0, -200, 0, 1, 1);
-
-void draw_scene(void) {
-	glClear(GL_COLOR_BUFFER_BIT);
-	glColor3f(1.0, 1.0, 0.0);
-	//view_setup();
-	draw_sugar_cube(-210, 0, -200, 40);
-	display_character(-225, -3, -180, 0.07, food);
-
-	glColor3f(0.0, 0.0, 0.0);
 	glLoadIdentity();
+	gluLookAt(0.0, 0.0, -0.5, 0.0, eyeY, -200.0, 0.0, 1.0, 0.0);
+}
+
+void draw_clock(void) {
+	glPushMatrix();
 	glTranslatef(190, 220, -200);
 
 	draw_circle(40.0, 50.0, 50.0, 200);
+	glPopMatrix();
 
-	glLoadIdentity();
+	glPushMatrix();
+
 	glTranslatef(240, 270, -200);
 	glRotated(secondHand, 0, 0, 1);
 	glBegin(GL_LINES);
 	glVertex3f(0, 0, 0);
 	glVertex3f(0, 40, 0);
-	//glVertex3f(240, 310, -200);
-	//glVertex3f(240, 270, -200);
+
 	glEnd();
+	glPopMatrix();
+}
+
+void draw_scene(void) {
+	glClear(GL_COLOR_BUFFER_BIT);
+	glColor3f(1.0, 1.0, 0.0);
+	view_setup();
+
+	draw_sugar_cube(-210, 0, -200, 40);
+	display_character(-225, -3, -180, 0.07, food);
+
+	glColor3f(0.0, 0.0, 0.0);
+	draw_clock();
+
 	glColor3f(ant_color_r, ant_color_g, ant_color_b);
 	draw_ant();
-	//glFlush();
 }
 
 void end_scene(void) {
@@ -247,7 +195,6 @@ void end_scene(void) {
 	glClear(GL_COLOR_BUFFER_BIT);
 	glColor3f(1.0, 0, 0);
 	display_character(-15, 0, -200, 1, finish);
-	//glFlush();
 }
 
 void display_func(void) {
@@ -261,17 +208,6 @@ void display_func(void) {
 		draw_scene();
 	}
 }
-
-/*void clock_tick(int value) {
-	secondHand -= 3;
-	if (secondHand == -360)
-	{
-		exit(0);
-	}
-	glutSwapBuffers();
-	glutPostRedisplay();
-	glutTimerFunc(250, clock_tick, 1);
-}*/
 
 void keyboard_handler(unsigned char key, int x, int y)
 {
@@ -295,7 +231,6 @@ void keyboard_handler(unsigned char key, int x, int y)
 		glutTimerFunc(60, timer_func, 10);
 		break;
 		//j
-
 	case 74: case 106:
 		left = 0;
 		right = 1;
@@ -337,7 +272,7 @@ void keyboard_handler(unsigned char key, int x, int y)
 		if (eyeY == 0) {
 			eyeY = 25;
 		}
-		else {
+		else if (eyeY == 25) {
 			eyeY = 0;
 		}
 		view_setup();
@@ -364,33 +299,8 @@ void move_position(void) {
 }
 
 void timer_func(int val) {
-
-
 	switch (val)
 	{
-	case 10:
-
-
-		if (isAnimate != 0) {
-			move_position();
-			glutPostRedisplay();
-			//isAnimate = 0;
-			glutTimerFunc(60, timer_func, 20);
-
-		}
-		break;
-	case 20:
-
-		if (isAnimate != 0) {
-			move_position();
-			glutPostRedisplay();
-			//isAnimate = 0;
-			glutTimerFunc(0, timer_func, 30);
-		}
-		break;
-	case 30:
-		glutKeyboardFunc(keyboard_handler);
-		break;
 	case 1:
 		secondHand -= 3;
 		if (secondHand == -360)
@@ -401,6 +311,26 @@ void timer_func(int val) {
 		glutPostRedisplay();
 		glutTimerFunc(250, timer_func, 1);
 		break;
+	case 10:
+		if (isAnimate != 0) {
+			move_position();
+			glutPostRedisplay();
+			glutTimerFunc(60, timer_func, 20);
+
+		}
+		break;
+	case 20:
+		if (isAnimate != 0) {
+			move_position();
+			glutPostRedisplay();
+			glutTimerFunc(0, timer_func, 30);
+		}
+		break;
+	case 30:
+		isAnimate = 0;
+		glutKeyboardFunc(keyboard_handler);
+		break;
+	
 	}
 }
 
