@@ -40,7 +40,7 @@ char canvas_Name[] = "Ant-sy Ant-ics";
 void keyboard_handler(unsigned char key, int x, int y);
 void timer_func(int val);
 
-void init() {
+void init(){
 	glClearColor(0.5, 1.0, 0.5, 1.0);
 
 	_angle = 0;
@@ -64,16 +64,14 @@ void init() {
 
 }
 
-void draw_connection_joints(int x)
-{
+void draw_connection_joints(int x){
 	glBegin(GL_LINES);
 	glVertex3f(0, 0, 0);
 	glVertex3f(x, 0, 0);
 	glEnd();
 }
 
-void draw_ant_legs(int x, int y)
-{
+void draw_ant_legs(int x, int y){
 
 	glBegin(GL_LINE_STRIP);
 	glVertex3f(x, y, 0);
@@ -156,21 +154,18 @@ void view_setup() {
 	gluLookAt(0.0, 0.0, -0.5, 0.0, eyeY, -200.0, 0.0, 1.0, 0.0);
 }
 
-void draw_clock(void) {
+void draw_clock(int x1, int y1, int x2, int y2, int z) {
 	glPushMatrix();
-	glTranslatef(190, 220, -200);
-
+	glTranslatef(x1, y1, z);
 	draw_circle(40.0, 50.0, 50.0, 200);
 	glPopMatrix();
 
 	glPushMatrix();
-
-	glTranslatef(240, 270, -200);
+	glTranslatef(x2, y2, z);
 	glRotated(secondHand, 0, 0, 1);
 	glBegin(GL_LINES);
 	glVertex3f(0, 0, 0);
 	glVertex3f(0, 40, 0);
-
 	glEnd();
 	glPopMatrix();
 }
@@ -184,7 +179,7 @@ void draw_scene(void) {
 	display_character(-225, -3, -180, 0.07, food);
 
 	glColor3f(0.0, 0.0, 0.0);
-	draw_clock();
+	draw_clock(190, 220, 240, 270, -200);
 
 	glColor3f(ant_color_r, ant_color_g, ant_color_b);
 	draw_ant();
