@@ -50,12 +50,15 @@ char canvas_Name[] = "Ant-sy Ant-ics";
 #define canvas_Width 640
 #define canvas_Height 640
 
+void keyboard_handler(unsigned char key, int x, int y);
+void timer_func(int val);
+
 void init() {
 	glClearColor(0.5, 1.0, 0.5, 1.0);
 
 	_angle = 0;
 	view_state = 1; //Ortho view = 1, Perspective = 0
-	
+
 	horizontal_move = 0;
 	vertical_move = 0;
 
@@ -132,7 +135,6 @@ void draw_ant()
 	draw_ant_legs(15, 55);
 	draw_connection_joints(35);
 	//glPopMatrix();
-
 	//second sphere
 	//glPushMatrix();
 	glLoadIdentity();
@@ -141,7 +143,6 @@ void draw_ant()
 	draw_ant_legs(0, 55);
 	draw_connection_joints(35);
 	//glPopMatrix();
-
 	//third sphere
 	//glPushMatrix();
 	glLoadIdentity();
@@ -154,7 +155,7 @@ void draw_ant()
 	draw_sphere(270 + horizontal_move, 15, 55, 0);
 
 
-	glFlush();
+	//glFlush();
 	//glPopMatrix();
 }
 
@@ -200,21 +201,21 @@ void display_character(int x, int y, int z, float size, char *character)
 }
 
 void view_setup() {
-		glMatrixMode(GL_PROJECTION);
-		glLoadIdentity();
-		if (view_state == 0)
-		{
-			gluPerspective(116.0, canvas_Width / canvas_Height, 1.0, 640.0);
-		}
-		else {
-			glOrtho(-320.0, 320.0, -320.0, 320.0, 0, 640.0);
-		}
-		glMatrixMode(GL_MODELVIEW);
-		//glLoadIdentity();
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	if (view_state == 0)
+	{
+		gluPerspective(116.0, canvas_Width / canvas_Height, 1.0, 640.0);
 	}
-	//gluLookAt(0, eyeY, -0.5, 0, 0, -200, 0, 1, 1);
+	else {
+		glOrtho(-320.0, 320.0, -320.0, 320.0, 0, 640.0);
+	}
+	glMatrixMode(GL_MODELVIEW);
+	//glLoadIdentity();
+}
+//gluLookAt(0, eyeY, -0.5, 0, 0, -200, 0, 1, 1);
 
-void background(void) {
+void draw_scene(void) {
 	glClear(GL_COLOR_BUFFER_BIT);
 	glColor3f(1.0, 1.0, 0.0);
 	//view_setup();
@@ -236,10 +237,12 @@ void background(void) {
 	//glVertex3f(240, 310, -200);
 	//glVertex3f(240, 270, -200);
 	glEnd();
+	glColor3f(ant_color_r, ant_color_g, ant_color_b);
+	draw_ant();
 	//glFlush();
 }
 
-void display_func_end(void) {
+void end_scene(void) {
 	glClearColor(0.5, 1.0, 0.5, 1.0);
 	glClear(GL_COLOR_BUFFER_BIT);
 	glColor3f(1.0, 0, 0);
@@ -249,76 +252,26 @@ void display_func_end(void) {
 
 void display_func(void) {
 
-	if (210 + horizontal_move == -210 && vertical_move == 0) {
-		display_func_end();
+	if ((210 + horizontal_move <= -210) && (210 + horizontal_move >= -213) && vertical_move == 0) {
 		glutKeyboardFunc(NULL);
+		end_scene();
+		
 	}
 	else {
-		background();
-		glColor3f(ant_color_r, ant_color_g, ant_color_b);
-		draw_ant();
-		//glFlush();
-		glFinish();
-
+		draw_scene();
 	}
 }
 
-
-long double millis() {
-	return std::chrono::duration_cast<std::chrono::milliseconds>(
-		std::chrono::system_clock::now().time_since_epoch()
-		).count();
-}
-
-void gate_delay() {
-	if (flag == 0) {
-		startTime = millis();
-		flag = 1;
-	}
-	// If the timer is finished, then set the flag gateOpenDelay  = 1
-
-	if (millis() - startTime >= gateOpenDelayTime) {
-		gateOpenDelay = 1;
-	}
-}
-
-void clock_tick(int value) {
+/*void clock_tick(int value) {
 	secondHand -= 3;
 	if (secondHand == -360)
 	{
 		exit(0);
 	}
-	//glutPostRedisplay();
+	glutSwapBuffers();
+	glutPostRedisplay();
 	glutTimerFunc(250, clock_tick, 1);
-}
-
-void timer_func(int val) {
-
-	if (isAnimate != 0) {
-		//glutKeyboardFunc(NULL);
-		if (left == 1) {
-			horizontal_move -= 5;
-		}
-		else if (right == 1) {
-			horizontal_move += 5;
-		}
-		else if (up == 1) {
-			vertical_move += 5;
-		}
-		else if (down == 1) {
-			vertical_move -= 5;
-		}
-		glutPostRedisplay();
-		//glutTimerFunc(60, timer_func, 1);
-		//glutKeyboardFunc(NULL);
-
-
-		isAnimate = 0;
-		//key = 1;
-		//glutKeyboardFunc(keyboard_handler);
-	}
-}
-
+}*/
 
 void keyboard_handler(unsigned char key, int x, int y)
 {
@@ -333,37 +286,23 @@ void keyboard_handler(unsigned char key, int x, int y)
 		break;
 		//h
 	case 72: case 104:
+		glutKeyboardFunc(NULL);
 		left = 1;
 		right = 0;
 		up = 0;
 		down = 0;
-		horizontal_move -= 5;
-		//glutPostRedisplay();
-		gate_delay();
-		horizontal_move -= 5;
-		glutPostRedisplay();
-		//glutKeyboardFunc(NULL);
-		//isAnimate += 1;
-		//isAnimate = 0;
-		//glutTimerFunc(60, timer_func, 1);
-		std::cout << isAnimate << std::endl;
-		std::cout << isAnimate << std::endl;
-		std::cout << isAnimate << std::endl;
-		
+		isAnimate = 1;
+		glutTimerFunc(60, timer_func, 10);
 		break;
 		//j
+
 	case 74: case 106:
 		left = 0;
 		right = 1;
 		up = 0;
 		down = 0;
-		horizontal_move += 5;
-		glutPostRedisplay();
-		gate_delay();
-		horizontal_move += 5;
-		glutPostRedisplay();
-		//isAnimate = 1;
-		//glutTimerFunc(60, timer_func, 1);
+		isAnimate = 1;
+		glutTimerFunc(60, timer_func, 10);
 		break;
 		//u
 	case 85: case 117:
@@ -371,13 +310,8 @@ void keyboard_handler(unsigned char key, int x, int y)
 		right = 0;
 		up = 1;
 		down = 0;
-		vertical_move += 5;
-		glutPostRedisplay();
-		gate_delay();
-		vertical_move += 5;
-		glutPostRedisplay();
-		//isAnimate = 1;
-		//glutTimerFunc(60, timer_func, 1);
+		isAnimate = 1;
+		glutTimerFunc(60, timer_func, 10);
 		break;
 		//n
 	case 78: case 110:
@@ -385,13 +319,8 @@ void keyboard_handler(unsigned char key, int x, int y)
 		right = 0;
 		up = 0;
 		down = 1;
-		vertical_move -= 5;
-		glutPostRedisplay();
-		gate_delay();
-		vertical_move -= 5;
-		glutPostRedisplay();
-		//isAnimate = 1;
-		//glutTimerFunc(60, timer_func, 1);
+		isAnimate = 1;
+		glutTimerFunc(60, timer_func, 10);
 		break;
 	case 67: case 99:
 		if (ant_color_r == 0 and ant_color_g == 0) {
@@ -419,17 +348,72 @@ void keyboard_handler(unsigned char key, int x, int y)
 	}
 }
 
+void move_position(void) {
+	if (left == 1) {
+		horizontal_move -= 5;
+	}
+	else if (right == 1) {
+		horizontal_move += 5;
+	}
+	else if (up == 1) {
+		vertical_move += 5;
+	}
+	else if (down == 1) {
+		vertical_move -= 5;
+	}
+}
+
+void timer_func(int val) {
+
+
+	switch (val)
+	{
+	case 10:
+
+
+		if (isAnimate != 0) {
+			move_position();
+			glutPostRedisplay();
+			//isAnimate = 0;
+			glutTimerFunc(60, timer_func, 20);
+
+		}
+		break;
+	case 20:
+
+		if (isAnimate != 0) {
+			move_position();
+			glutPostRedisplay();
+			//isAnimate = 0;
+			glutTimerFunc(0, timer_func, 30);
+		}
+		break;
+	case 30:
+		glutKeyboardFunc(keyboard_handler);
+		break;
+	case 1:
+		secondHand -= 3;
+		if (secondHand == -360)
+		{
+			exit(0);
+		}
+		glutSwapBuffers();
+		glutPostRedisplay();
+		glutTimerFunc(250, timer_func, 1);
+		break;
+	}
+}
 
 int main(int argc, char ** argv) {
 	std::cout << "Any Key Click Will Start Animation.." << std::endl;
 	glutInit(&argc, argv);
 	my_setup(canvas_Width, canvas_Height, canvas_Name);
 	//view_setup();
-	
-	glutTimerFunc(250, clock_tick, 2);
+
+	glutTimerFunc(250, timer_func, 1);
 	glutDisplayFunc(display_func);
 	glutKeyboardFunc(keyboard_handler);
-	
+
 	init();
 	glutMainLoop();
 	return 0;

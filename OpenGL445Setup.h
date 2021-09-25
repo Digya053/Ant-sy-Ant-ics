@@ -21,6 +21,7 @@ void my_3d_projection(int width, int height)
 	glLoadIdentity();
 	glOrtho(-320.0, 320.0, -320.0, 320.0, 0, 640.0);
 	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
 }
 
 #define STRT_X_POS 25
@@ -35,7 +36,7 @@ void my_setup(int width, int height, char *window_name_str)
 	//glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB); 
 	// below code line does single buffering - if above line is uncommented,
 	// the single buffering line will have to be commented out
-	glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB);
+	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);
 	glutInitWindowSize(width, height);
 	glutInitWindowPosition(STRT_X_POS, STRT_Y_POS);
 	glutCreateWindow(window_name_str);
@@ -43,4 +44,3 @@ void my_setup(int width, int height, char *window_name_str)
 	glewInit();
 	glutReshapeFunc(my_3d_projection);
 }
-
