@@ -1,40 +1,34 @@
 /*CS 445/545 Prog 2 for Digya Acharya*/
 /***********************************************************************************************
 antsy_antics.cpp
-EXTRA CREDIT: All three extra credit features have been implemented, i.e, supporting toggling the ant 
+EXTRA CREDIT: All three extra credit features have been implemented, i.e, supporting toggling of an ant
 color, supporting toggling of the camera center without changing the camera heading 25 units in the 
-y-direction and adding clock in the upper right corner; ending game as it reaches its starting position. 
-[Position of clock is set in a particular corner in the upper right corner focussing on making it 
-appear on both camera positions].
+y-direction and adding clock in the upper right corner; ending game as it reaches the starting position.
 
-Software Architecture Statement: This program illustrates the movement of an ant to reach a sugar cube 
+Software Architecture Statement: This program illustrates the movement of an ant to reach a sugar cube
 before the clock runs out of time by registering three callback functions: display_func() which is a 
 display callback handler, timer_func() which is a timer callback handler and keyboard_handler() which is
-a keyboard callback handler. The program uses double buffered display mode and uses glutSwapBuffers() at the
-end of display_func to swap the next scene generated in the the back buffer to the content of the front 
-buffer. glutWireSphere() and glutWireCube() have been used to draw ant and cube, & series of glPushMatrix, 
-translate, glPopMatrix is used to place them, instead of glLoadIdentity() so as to change camera position
-using gluLookAt conveniently.
-
-Major Functions => draw_new_scene(void) draws the complete scene which includes an ant, clock and a 
-sugar cube; display_func(void) calls the draw_new_scene(), is also responsible for redrawing the screen
-on each new frame and printing "YOU WIN" at the end; timer_func(int x) handles horizontal (left/right), 
-vertical (up/down) movement of an ant and the motion of a clock; keyboard_handler(unsigned char key, 
-int x, int y) handles the key input to cause horizontal and vertical motion.
-
-Major global variables => horizontal_move and vertical_move are the major integer variables used in 
-animation which is responsible for causing horizontal and vertical move of an ant; left,right,up, 
-down are the major integer flags for dertermining direction of motion of an ant; animationPeriod is a 
-integer variable used for timing two subsequent movement in a single key press; view_state for tracking
-the type of view volume in display.
-
-Keyboard Interactions => Pressing 'H' or 'h' causes  the left motion, 'J' or 'j' causes the right 
+a keyboard callback handler. The program uses double buffered display mode and uses glutSwapBuffers() at
+the end of display_func to swap the next scene generated in the back buffer to the content of the front 
+buffer. glutWireSphere() and glutWireCube() have been used to draw ant and cube, & series of 
+glPushMatrix(), translate, draw, glPopMatrix() is used to place them, instead of glLoadIdentity() so as
+to change the camera position using gluLookAt conveniently.
+Major Functions => draw_new_scene() draws the complete scene which includes an ant, clock and a sugar 
+cube; display_func() calls the draw_new_scene(), is also responsible for redrawing the screen on each 
+new frame and displaying "YOU WIN" screen at the end; timer_func() handles movement of an ant and the motion of a
+clock; keyboard_handler() handles the key input to cause horizontal and vertical motion.
+Major global variables => horizontal_move and vertical_move are the major integer global variables used
+in animation which is responsible for causing horizontal and vertical move of an ant; left,right,up, 
+down are the major global integer flags for determining direction of motion of an ant; animationPeriod 
+is a global integer variable used for timing two subsequent movement in a single key press; view_state 
+for tracking the type of view volume in display.
+Keyboard Interactions => Pressing 'H' or 'h' causes  the left motion, 'J' or 'j' causes the right
 motion, 'U' or 'u' causes the up motion, 'N' or 'n' causes the down motion, 'C' or 'c' toggles the ant
 color, 'T' or 't' toggles the camera position and 'P' or 'p' toggles the view volume.
 ************************************************************************************************/
-
 //CHANGE IN OpenGL445Setup.h => The glut display mode has been set to double buffered window replacing
 //the mode to GLUT_DOUBLE in the "OpenGL445Setup.h" file with instructor's approval.
+
 #include "pch.h"
 #include <iostream>
 #include <GL/glew.h>
@@ -49,42 +43,42 @@ static int view_state; // Flag to keep track of the type of view volume currentl
 static int horizontal_move; // Changes position in the horizontal direction (left/right)
 static int vertical_move; // Changes position in the vertical direction (up/down)
 
-static int left; // Set the direction to move as left
-static int right; // Set the direction to move as right
-static int up; // Set the direction to move as up
-static int down; // Set the direction to move as down
+static int left; // Set the direction of move to left
+static int right; // Set the direction of move to right
+static int up; // Set the direction of move to up
+static int down; // Set the direction of move to down
 
 static int animationPeriod = 60; // Set the time between two consecutive movements on a single
 								// key press as 60 ms
 // For toggling ant color
-static float ant_color_r;	// Store the red, green and blue values of ant color
+static float ant_color_r;		// Stores the red, green and blue values of ant color
 static float ant_color_g;
 static float ant_color_b;
 
 // For changing camera orientation
-static float eyeY;		// Stores the current y-position of the camera
+static float eyeY;				// Stores the current y-position of the camera
 
 // For moving 
-static int sweepHand;	// Used for rotating the sweep hand of clock
+static int sweepHand;			// Used for rotating the sweep hand of a clock
 
-char food[] = "YUM";	// Text on the sugar cube
-char finish[] = "YOU WIN!";	// Text displayed after the center of ant aligns with center of cube before
-							// the time is out
+char food[] = "YUM";			// Text on the sugar cube
+char finish[] = "YOU WIN!";		// Text displayed after the center of ant aligns with center of cube 
+								// before the time is out
 char canvas_Name[] = "Ant-sy Ant-ics"; // Name at the top of canvas
 
 // Sets width and height of canvas to 480 by 480.
 #define canvas_Width 640
 #define canvas_Height 640
 
-#define PI 3.14159265358979324 // For drawing circle
+#define PI 3.14159265358979324	// For drawing circle
 
 // Function Prototypes
 void keyboard_handler(unsigned char key, int x, int y);
 void timer_func(int val);
 
-void init(){
-	/* This sets the background or clearning color of the canvas. Also set the initial state of
-	all the global variables declared. */
+void init(void){
+	/* This function sets the background or clearning color of the canvas. Also set the initial state
+	of all the global variables declared. */
 	glClearColor(0.5, 1.0, 0.5, 1.0);				// the background color
 	view_state = 1;									// Set the view volume to orthographic
 
@@ -106,7 +100,7 @@ void init(){
 	// As the camera position is at the origin in the beginning, set eyeY (position of camera y) to 0
 	eyeY = 0.0;
 
-	// The sweepHand at the initial position
+	// The sweep hand at the initial position
 	sweepHand = 0;
 }
 
@@ -290,7 +284,7 @@ void view_setup(void) {
 	else {
 		glOrtho(-320.0, 320.0, -320.0, 320.0, 0.5, 640.0);
 	}
-	// Set the current matrix mode to modelview to apply the subsequent operations on modelview mode.
+	// Sets the current matrix mode to modelview to apply the subsequent operations on modelview mode.
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 }
@@ -365,13 +359,15 @@ void end_scene(void) {
 	glClear(GL_COLOR_BUFFER_BIT);
 	glColor3f(1.0, 0, 0);
 	display_character(-15, 0, -200, 1, finish);
+	// Exit after 1000 ms of displaying "YOU WIN" screen
+	glutTimerFunc(1000, timer_func, 2);
 }
 
 void display_func(void) {
 	/* 
 	This is a glut display callback handler which is called whenever a window needs to be displayed 
 	or redisplayed. It clears the canvas screen and reloads all the objects of the scene when called.
-	This function is also detection whether the center of the ant aligns with the center of the cube, 
+	This function also detects whether the center of the ant aligns with the center of the cube, 
 	and after it aligns, this function calls end_scene function to display the game win text.
 	*/
 
@@ -521,6 +517,8 @@ void timer_func(int val) {
 		glutPostRedisplay();				// Queue a display event
 		glutTimerFunc(250, timer_func, 1);	// Queue timer event for rotating each 250 ms
 		break;
+	case 2:									// value or timer ID is set to 2
+		exit(0);							// exit
 	case 10:								// value or timer ID is set to 10
 		move_position();					// Move position of the ant
 		glutPostRedisplay();				// display event for generating new frame with ant movement
@@ -537,11 +535,27 @@ void timer_func(int val) {
 	}
 }
 
+void print_interactions(void) {
+	/* 
+	This function prints the key interactions on terminal for convenience.
+	*/
+	std::cout << "==========Keyboard Interactions:==========" << std::endl;
+	std::cout << "Press 'H' or 'h' for left motion" << std::endl;
+	std::cout << "Press'J' or 'j' for right motion" << std::endl;
+	std::cout << "Press 'U' or 'u' for up motion" << std::endl;
+	std::cout << "Press 'N' or 'n' for down motion" << std::endl;
+	std::cout << "Press 'C' or 'c' to toggle the ant color" << std::endl;
+	std::cout << "Press 'T' or 't' to toggle the camera position" << std::endl;
+	std::cout << "Press 'P' or 'p'to toggle the view volume" << std::endl;
+}
+
 /************** MAIN FUNCTION **************/
 int main(int argc, char ** argv) {
 	// Setup preliminaries
 	glutInit(&argc, argv);
 	my_setup(canvas_Width, canvas_Height, canvas_Name);
+	// Print keyboard interactions for convenience
+	print_interactions();
 
 	// Register timer callback handler for running clock
 	glutTimerFunc(250, timer_func, 1);
