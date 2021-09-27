@@ -1,6 +1,6 @@
 /*CS 445/545 Prog 2 for Digya Acharya*/
 /***********************************************************************************************
-antsy_antics.cpp
+antscd Ay_antics.cpp
 EXTRA CREDIT: All three extra credit features have been implemented, i.e, supporting toggling of an ant
 color, supporting toggling of the camera center without changing the camera heading 25 units in the 
 y-direction and adding clock in the upper right corner; ending game as it reaches the starting position.
@@ -279,10 +279,11 @@ void view_setup(void) {
 	if (view_state == 0)
 	{
 		gluPerspective(116.0, canvas_Width / canvas_Height, 1.0, 640.0);
+		gluLookAt(0.0, eyeY, -0.5, 0.0, 0.0, -200.0, 0.0, 1.0, 0.0);
 	}
 	// Sets view volume to orthographic if view state is 1. 
 	else {
-		glOrtho(-320.0, 320.0, -320.0, 320.0, 0.5, 640.0);
+		glOrtho(-320.0, 320.0, -320.0, 320.0, 0, 640.0);
 	}
 	// Sets the current matrix mode to modelview to apply the subsequent operations on modelview mode.
 	glMatrixMode(GL_MODELVIEW);
@@ -459,10 +460,15 @@ void keyboard_handler(unsigned char key, int x, int y)
 		break;
 	case 84: case 116:						// 't' or 'T' key is pressed
 		// Change the y-position to 0 if 25 and vice versa
-		if (eyeY == 0) {					
+		if (eyeY == 0) {
 			eyeY = 25;
 			view_setup();			// Set up the projection and modelview matrix stack for new position
-			gluLookAt(0.0, eyeY, 0.0, 0.0, 0.0, -200.0, 0.0, 1.0, 0.0); //Reposition the camera
+			if (view_state == 0) {
+				gluLookAt(0.0, eyeY, -0.5, 0.0, 0.0, -200.0, 0.0, 1.0, 0.0); //Reposition the camera
+			}
+			else if (view_state == 1) {
+				gluLookAt(0.0, eyeY, 0.0, 0.0, 0.0, -200.0, 0.0, 1.0, 0.0);
+			}
 		}
 		else if (eyeY == 25) {
 			eyeY = 0;
